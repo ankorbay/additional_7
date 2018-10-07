@@ -6,7 +6,6 @@ module.exports = function solveSudoku(puzzle) {
           }
       }
   }
-
   return puzzle;
 }
 
@@ -17,9 +16,9 @@ function checknumber(puzzle, x, y) {
   const column = columnArray(puzzle, x);
   const grid = gridArray(puzzle, x, y);
   
-  let knowns = row.concat(column, grid);
+  let nonpossibilities = row.concat(column, grid);
   
-  const possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(function(item) { return knowns.indexOf(item) === -1; });
+  const possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(function(item) { return nonpossibilities.indexOf(item) === -1; });
 
   return possibilities.length == 1 ? possibilities[0] : 0;
 }
@@ -29,13 +28,13 @@ function columnArray(puzzle, idx) {
 }
 
 function gridArray(puzzle, x, y) {
-  x = Math.floor(x / 3) * 3;
-  y = Math.floor(y / 3) * 3;
+  let _x = Math.floor(x / 3) * 3;
+  let _y = Math.floor(y / 3) * 3;
   
   const arr = [];
   
-  for (let i = x; i < x + 3; i++) {
-      for (let j = y; j < y + 3; j++) {
+  for (let i = _x; i < _x + 3; i++) {
+      for (let j = _y; j < _y + 3; j++) {
           arr.push(puzzle[j][i]);
       }
   }
