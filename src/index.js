@@ -1,55 +1,75 @@
-module.exports = function solveSudoku(puzzle) {
-  while (!isSolved(puzzle)) {
-      for (let x = 0; x < 9; x++) {
-          for (let y = 0; y < 9; y++) {
-              puzzle[y][x] = checknumber(puzzle, x, y);
-          }
-      }
+module.exports = function solveSudoku(sudoku) {
+    let x = 0;
+    let y = 0;
+    let emptyPos;
+  
+    function checkThePosition(sudoku, x, y, number) {
+        for (let i = 0; i < 9; i++)
+            if (sudoku[i][y] === number) {
+                return false
+            };
+        for (let j = 0; j < 9; j++)
+            if (sudoku[x][j] === number) {
+                return false
+            };
+  
+        x = Math.floor(x / 3) * 3;
+        y = Math.floor(y / 3) * 3;
+  
+        for (let i = 0; i < 3; i++)
+            for (let j = 0; j < 3; j++)
+                if (sudoku[x + i][y + j] === number) {
+                    return false
+                };
+  
+        return true;
+    }
+  
+    function searchforEmpty(sudoku, x, y) {
+        foundposition = [];
+  
+        while (true) {
+            if (x === sudoku.length) {
+                break;
+            } 
+            if (sudoku[x][y] === 0) {
+            foundposition[0] = x;
+            foundposition[1] = y;
+            break;
+            } 
+            else {
+                if (y < sudoku.length - 1) {
+                    y++;
+                }
+                else {
+                x++;
+                y = 0;
+                }
+            }
+        }
+  
+        return foundposition;
+    }
+  
+    function solveRecursively(sudoku, x, y) {
+        emptyPos = searchforEmpty(sudoku, x, y);
+        x = emptyPos[0];
+        y = emptyPos[1];
+  
+        if (typeof x === "undefined") {
+            return true;
+        }
+        for (let number = 1; number <= 9; number++) {
+            if (checkThePosition(sudoku, x, y, number)) {
+            sudoku[x][y] = number;
+            if (solveRecursively(sudoku, x, y)) {
+                return true;
+            }
+            sudoku[x][y] = 0;
+            }
+        }
+        return false;
+    }
+    solveRecursively(sudoku, x, y)
+    return sudoku;
   }
-  return puzzle;
-}
-
-function checknumber(puzzle, x, y) {
-  if (puzzle[y][x] !== 0) return puzzle[y][x];
-
-  const row = puzzle[y];
-  const column = columnArray(puzzle, x);
-  const grid = gridArray(puzzle, x, y);
-  
-  let nonpossibilities = row.concat(column, grid);
-  
-  const possibilities = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(function(item) { return nonpossibilities.indexOf(item) === -1; });
-
-  return possibilities.length == 1 ? possibilities[0] : 0;
-}
-
-function columnArray(puzzle, idx) {
-  return puzzle.map(function(row) { return row[idx]; });
-}
-
-function gridArray(puzzle, x, y) {
-  let _x = Math.floor(x / 3) * 3;
-  let _y = Math.floor(y / 3) * 3;
-  
-  const arr = [];
-  
-  for (let i = _x; i < _x + 3; i++) {
-      for (let j = _y; j < _y + 3; j++) {
-          arr.push(puzzle[j][i]);
-      }
-  }
-  
-  return arr;
-}
-
-function sum(arr) {
-  return arr.reduce(function(a, n) { return a + n; }, 0);
-}
-
-function winningRow(arr) {
-  return sum(arr.map(function(num) { return Math.pow(2, num - 1); })) == 511;
-}
-
-function isSolved(puzzle) {
-  return puzzle.filter(function (row) { return !winningRow(row); }).length === 0;
-}
